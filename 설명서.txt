@@ -136,7 +136,7 @@ handleToDoSubmit function 만들기
 여기서 말하는 input 이란 todo-list 란에 submit된 값을 의미한다.
 
 두가지 옵션이 있다.
-첫째, 우리는 todoInput 을 전체 document 에서 찾아볼 수 있다. 전체 html 말이야
+첫째, 우리는 todoInput을 전체 document 에서 찾아볼 수 있다. 전체 html 말이야
 둘째, todoInput을 toDoForm 안에서만 찾아볼 수 있다.
 
 즉, document.getElementById("todo-form");  ==  document.querySelector("#todo-form input") 인 상황을 의미한다.
