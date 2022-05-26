@@ -1,13 +1,35 @@
 const toDoForm = document.getElementById("todo-form");
 const toDoInput = document.querySelector("#todo-form input");
 const toDoList = document.getElementById("todo-list");
-
 const TODOS_KEY = "todos";
+const savedToDos = localStorage.getItem(TODOS_KEY);
+const toDos = []; // localStorage에 데이터를 넣을 경우 string 으로 파싱되기 때문에, toDos라는 배열을 만들어 쉽게 관리하기 위함
+// localStorage에는 array를 저장할 수 없다.
+// localStorage는 오직 txt의 형태로 저장된다. rough하게 string으로 이해하자.
 
-const toDos = []; // paintToDo가 실행될 때 array에 객체를 추가 // 3번 localStorage에 넣어야 할 데이터
+if (savedToDos) {
+  const parsedToDos = JSON.parse(savedToDos); // localStorage에 저장된 JOSN 파일이 string 배열의 형태로 반환되고 그 값이 상수에 저장됨
+  parsedToDos.forEach(item => console.log("this is the turn of ", item));
+  // item을 function의 매개변수로 이해하고 그 매개변수에 foreach 문을 돌며 순차적인 element가 들어간다고 생각해라
+  // => 이후는 function이 body 부분으로 이해하자!
+  // 이러한 형태를 화살표 함수라고 칭한다.
+  // 속도문제도 없고 그냥 똑같은데 형태만 다르다.
+}
+
+toDoForm.addEventListener("submit", handleToDoSubmit); // 1
+
+function handleToDoSubmit(event) {
+  // 2 실행
+  event.preventDefault(); // submit이 일어날 경우 새로고침을 막는다.
+  const newTodo = toDoInput.value; // 들어온 값을 const 화 시키고
+  toDoInput.value = ""; // 다시 input.value를 초기화 시킴
+  toDos.push(newTodo); // push 함수는 원본에 들어가기 때문에 새로운 객체가 새로 생기는 상황이 아님
+  paintToDo(newTodo); // 들어온 값을 처리하기 위해서 함수에 newToDo값을 보냄
+  saveToDos();
+}
 
 function paintToDo(newTodo) {
-  // 4번
+  // 3번
   // handleToDoSumbit 이 사용하게 될 함수
   const li = document.createElement("li"); // javaScript 에서 요소를 추가할 방법이 생김
   const span = document.createElement("span"); // paint 작업을 하기위해서 두 가지의 element를 만듦
@@ -21,38 +43,24 @@ function paintToDo(newTodo) {
 }
 
 function saveToDos() {
+  // localStorage에 단순 txt 형식으로 저장되는 것을 JSON 형식으로 저장하기 위한 함수
+  // JSON을 쓸 경우 String 파싱이 훨씬 편해지며 json으로 저장되어져 있는 localStorage value 값을 파싱할 경우 자바스크립트가 이해할 수 있는 배열로 파싱함
+  // 4번
   localStorage.setItem(TODOS_KEY, JSON.stringify(toDos));
-  // 알아서 배열을 쪼개서 들어감 // 배열 안의 변수값은 새로고침 할 때마다 초기화가 된다. // 배열과 일반 변수는 다르다는 것을 명심하길
+  // stringfy 함수 : stringfy 함수는 자바스크립트 언어 환경에서의 Json형식의 object를 매개변수로 넣을 경우 parsing 후 return String 을 하는 것을 말함.
+  // stringfy를 써야 하는 이유는 localStorage는 데이터를 저장할 경우에 자동으로 string으로 파싱한다.
+  // 만약, 저장을 하려하는 데이터 타입이 개체일 경우 string 으로 파싱되어 이상하게 저장된다.
+  // json은 txt를 형식화한 것이다. 결국, 최종적으로 localStroage에 string 하나의 개체로 저장되겠지만 그 string의 구조를 json 파일로 볼 때는
+  // 또는 그 이후에 파싱할 때 개체의 형태등으로 원형으로 복원할 수 있도록 만들 수 있따.
+  // 이는 json을 쓰는 근본적인 이유와도 연계되어 있다.
+  // 하나 더 질문, key 가 중복될 경우 기존의 string에 값을 concat하여 string에 저장된다. 보이는 건 배열이지만 이는 하나의 string이다.
 }
 
 function deleteToDo(event) {
-  // 5번
+  // 3의 1번
   // x 를 클릭할 경우 todo-list가 사리지게 만듦
   const li = event.target.parentElement; // 부모 객체 참조값인듯
   li.remove(); // text를 삭제시킴 .. localStorage 값을 없애지는 못함
-}
-
-function handleToDoSubmit(event) {
-  // 2 실행
-  event.preventDefault(); // submit이 일어날 경우 새로고침을 막는다.
-  const newTodo = toDoInput.value; // 들어온 값을 const 화 시키고
-  toDoInput.value = ""; // 다시 input.value를 초기화 시킴
-  toDos.push(newTodo); // push 함수는 원본에 들어가기 때문에 새로운 객체가 새로 생기는 상황이 아님
-  paintToDo(newTodo); // 들어온 값을 처리하기 위해서 함수에 newToDo값을 보냄
-  saveToDos();
-}
-
-toDoForm.addEventListener("submit", handleToDoSubmit); // 1
-
-const savedToDos = localStorage.getItem(TODOS_KEY);
-
-if (savedToDos) {
-  const parsedToDos = JSON.parse(savedToDos); // localStorage에 저장된 string 이 파싱되어진 배열의 형태로 반환되고 그 값이 상수에 저장됨
-  parsedToDos.forEach(item => console.log("this is the turn of ", item));
-  // item을 function의 매개변수로 이해하고 그 매개변수에 foreach 문을 돌며 순차적인 element가 들어간다고 생각해라
-  // => 이후는 function이 body 부분으로 이해하자!
-  // 이러한 형태를 화살표 함수라고 칭한다.
-  // 속도문제도 없고 그냥 똑같은데 형태만 다르다.
 }
 
 /*
