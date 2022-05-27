@@ -101,9 +101,4 @@ JSON.stringify() 를 할 경우 string 배열로 바뀌게 되는데 이를 다�
   - 1.setItem 의 형태로 하나의 string 형태로 저장 
   - 2.JSON.stringify() 로 string 배열의 형태로 쪼갬
   - 3.JSON.parse() 로 string 배열의 원소들을 파싱하여 타입을 변환시켜 의도에 맞게 가공할 수 있는 원재료로 만들어 놓음 
-
-
-
-
-
 */
