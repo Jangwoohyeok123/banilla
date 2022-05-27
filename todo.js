@@ -3,13 +3,17 @@ const toDoInput = document.querySelector("#todo-form input");
 const toDoList = document.getElementById("todo-list");
 const TODOS_KEY = "todos";
 const savedToDos = localStorage.getItem(TODOS_KEY);
-const toDos = []; // localStorage에 데이터를 넣을 경우 string 으로 파싱되기 때문에, toDos라는 배열을 만들어 쉽게 관리하기 위함
+let toDos = []; // localStorage에 데이터를 넣을 경우 string 으로 파싱되기 때문에, toDos라는 배열을 만들어 쉽게 관리하기 위함
 // localStorage에는 array를 저장할 수 없다.
 // localStorage는 오직 txt의 형태로 저장된다. rough하게 string으로 이해하자.
+// 이 배열선언이 존재하기 때문에 새로고침을 할 경우 자꾸 배열이 초기화 되는 현상이 생기는 것이다.
+// 헷갈리는 부분! 해결 = 새로고침을 하고 todoPush를 하지 않을 경우에는 localStorage에 정보가 있었는데 누르면 다 사라졌는데 배열은
+// 초기화 됐지만 아직 localStorage안에 value 값은 초기화 되지 않았기 때문이다. 즉, 저장장소가 다르다.
 
-if (savedToDos) {
+if (savedToDos !== null) {
   const parsedToDos = JSON.parse(savedToDos); // localStorage에 저장된 JOSN 파일이 string 배열의 형태로 반환되고 그 값이 상수에 저장됨
-  parsedToDos.forEach(item => console.log("this is the turn of ", item));
+  toDos = parsedToDos; // 새로고침시 문제를 해결하기 위해 null 이 아닐 경우 새로고침을 해도 배열안에 localStorage의 값을 복사하여 채워넣는다.
+  parsedToDos.forEach(paintToDo);
   // item을 function의 매개변수로 이해하고 그 매개변수에 foreach 문을 돌며 순차적인 element가 들어간다고 생각해라
   // => 이후는 function이 body 부분으로 이해하자!
   // 이러한 형태를 화살표 함수라고 칭한다.
@@ -23,8 +27,13 @@ function handleToDoSubmit(event) {
   event.preventDefault(); // submit이 일어날 경우 새로고침을 막는다.
   const newTodo = toDoInput.value; // 들어온 값을 const 화 시키고
   toDoInput.value = ""; // 다시 input.value를 초기화 시킴
-  toDos.push(newTodo); // push 함수는 원본에 들어가기 때문에 새로운 객체가 새로 생기는 상황이 아님
-  paintToDo(newTodo); // 들어온 값을 처리하기 위해서 함수에 newToDo값을 보냄
+  const newToDoObj = {
+    // 들어온 값을 개체화 시키고 localStorage에 개체를 저장함
+    text: newTodo,
+    id: Date.now(),
+  };
+  toDos.push(newToDoObj); // push 함수는 원본에 들어가기 때문에 새로운 객체가 새로 생기는 상황이 아님
+  paintToDo(newToDoObj); // 들어온 값을 처리하기 위해서 함수에 newToDo값을 보냄
   saveToDos();
 }
 
@@ -32,11 +41,13 @@ function paintToDo(newTodo) {
   // 3번
   // handleToDoSumbit 이 사용하게 될 함수
   const li = document.createElement("li"); // javaScript 에서 요소를 추가할 방법이 생김
+  li.id = newTodo.id; // html id를 생성하고 date.now 값을 집어넣음
   const span = document.createElement("span"); // paint 작업을 하기위해서 두 가지의 element를 만듦
   const button = document.createElement("button");
-  span.innerText = newTodo; // span 안에 input 받은 값을 text화 시킨다
+  span.innerText = newTodo.text; // span 안에 input 받은 값을 text화 시킨다
+  // localStorage에 개체를 저장시키려고 할 경우 개체는 파싱되어 저장까지는 되나 그 이후 innerText로 불러올 경우 Object의 형태로 html문서에 나타난다.
   button.innerText = "X";
-  button.addEventListener("click", deleteToDo); // X를 누를 경우 알아서 사라지게 만듦
+  button.addEventListener("click", deleteToDo); // X를 누를 경우 알아서 사라지게 만듦 // 분기문의 느낌이 강함
   toDoList.appendChild(li);
   li.appendChild(span); // li는 span이라는 자식을 갖게 됨
   li.appendChild(button);
@@ -48,7 +59,7 @@ function saveToDos() {
   // 4번
   localStorage.setItem(TODOS_KEY, JSON.stringify(toDos));
   // stringfy 함수 : stringfy 함수는 자바스크립트 언어 환경에서의 Json형식의 object를 매개변수로 넣을 경우 parsing 후 return String 을 하는 것을 말함.
-  // stringfy를 써야 하는 이유는 localStorage는 데이터를 저장할 경우에 자동으로 string으로 파싱한다.
+  // stringfy를 써야 하는 이유는... localStorage는 데이터를 저장할 경우에 자동으로 string으로 파싱한다.
   // 만약, 저장을 하려하는 데이터 타입이 개체일 경우 string 으로 파싱되어 이상하게 저장된다.
   // json은 txt를 형식화한 것이다. 결국, 최종적으로 localStroage에 string 하나의 개체로 저장되겠지만 그 string의 구조를 json 파일로 볼 때는
   // 또는 그 이후에 파싱할 때 개체의 형태등으로 원형으로 복원할 수 있도록 만들 수 있따.
@@ -61,6 +72,7 @@ function deleteToDo(event) {
   // x 를 클릭할 경우 todo-list가 사리지게 만듦
   const li = event.target.parentElement; // 부모 객체 참조값인듯
   li.remove(); // text를 삭제시킴 .. localStorage 값을 없애지는 못함
+  toDos = toDos.filter(element => element.id !== li.id);
 }
 
 /*
