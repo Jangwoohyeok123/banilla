@@ -60,9 +60,9 @@ function saveToDos() {
   localStorage.setItem(TODOS_KEY, JSON.stringify(toDos));
   // stringfy 함수 : stringfy 함수는 자바스크립트 언어 환경에서의 Json형식의 object를 매개변수로 넣을 경우 parsing 후 return String 을 하는 것을 말함.
   // stringfy를 써야 하는 이유는... localStorage는 데이터를 저장할 경우에 자동으로 string으로 파싱한다.
-  // 만약, 저장을 하려하는 데이터 타입이 개체일 경우 string 으로 파싱되어 이상하게 저장된다.
+  // 만약, 저장하는 데이터 타입이 개체일 경우 string 으로 파싱되어 이상하게 저장된다.
   // json은 txt를 형식화한 것이다. 결국, 최종적으로 localStroage에 string 하나의 개체로 저장되겠지만 그 string의 구조를 json 파일로 볼 때는
-  // 또는 그 이후에 파싱할 때 개체의 형태등으로 원형으로 복원할 수 있도록 만들 수 있따.
+  // 이해하기 편하게 바꿔놓음
   // 이는 json을 쓰는 근본적인 이유와도 연계되어 있다.
   // 하나 더 질문, key 가 중복될 경우 기존의 string에 값을 concat하여 string에 저장된다. 보이는 건 배열이지만 이는 하나의 string이다.
 }
@@ -70,9 +70,10 @@ function saveToDos() {
 function deleteToDo(event) {
   // 3의 1번
   // x 를 클릭할 경우 todo-list가 사리지게 만듦
-  const li = event.target.parentElement; // 부모 객체 참조값인듯
+  const li = event.target.parentElement; // event target 속성은 이벤트가 발생한 대상 객체를 가리킨다.
   li.remove(); // text를 삭제시킴 .. localStorage 값을 없애지는 못함
-  toDos = toDos.filter(element => element.id !== li.id);
+  toDos = toDos.filter(element => element.id !== parseInt(li.id)); // 해석 : 내가 x 를 누른 li를 제외한 것은 남겨두고 싶다!
+  saveToDos(); // save 되는 배열은 filter 후에 return 된 배열을 다시 localStorage에 저장한다.
 }
 
 /*
@@ -101,9 +102,4 @@ JSON.stringify() 를 할 경우 string 배열로 바뀌게 되는데 이를 다�
   - 1.setItem 의 형태로 하나의 string 형태로 저장 
   - 2.JSON.stringify() 로 string 배열의 형태로 쪼갬
   - 3.JSON.parse() 로 string 배열의 원소들을 파싱하여 타입을 변환시켜 의도에 맞게 가공할 수 있는 원재료로 만들어 놓음 
-
-
-
-
-
 */

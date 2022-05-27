@@ -49,3 +49,5 @@ const todaysQuote = quotes[Math.floor(Math.random() * length)]; // 0과 1사이�
 
 quote.innerText = todaysQuote.quote;
 author.innerText = todaysQuote.author;
+
+// merge test
